@@ -68,10 +68,10 @@ class QKIH(tk.Toplevel):
 
     def define_accespoints(self):
         # Access point selector.
-        self.title_label = Label(window, text="Quick Keystroke Injection Handler", font=("Arial", 20), bg="black", fg="white")
+        self.title_label = Label(window, text="qkih", font=("Arial", 20), bg="black", fg="white")
         self.title_label.place(x=30, y=10)
 
-        self.title_label = Label(window, text="Current entry point:", font=(
+        self.title_label = Label(window, text="Entry point:", font=(
             "Arial", 12), bg="black", fg="gray")
         self.title_label.place(x=30, y=60)
         
@@ -111,17 +111,17 @@ class QKIH(tk.Toplevel):
         # max key delay label text allign right to left
         self.key_delay_label_max = ttk.Label(window, text="max(ms):0", font=(
             "Arial", 12))
-        self.key_delay_label_max.place(x=391, y=399, height=30)
+        self.key_delay_label_max.place(x=375, y=399, height=30)
 
         # min key delay slider
         self.scale_min = ttk.Scale(
             window, from_=0, to=1000, orient=HORIZONTAL, length=100, command=lambda x: self.update_ms(x, "min"))
-        self.scale_min.place(x=284, y=399, height=30)
+        self.scale_min.place(x=264, y=399, height=30)
 
         # min key delay label text allign right to left
         self.key_delay_label_min = ttk.Label(window, text="min(ms):0", font=(
             "Arial", 12))
-        self.key_delay_label_min.place(x=215, y=399, height=30)
+        self.key_delay_label_min.place(x=180, y=399, height=30)
 
         self.script_entry.bind('<KeyPress>', self.update_colors)
     
@@ -177,8 +177,9 @@ class QKIH(tk.Toplevel):
         except:
             pass
 
+        redefine_windows = Desktop(backend="uia").windows()
         self.open_tabs = []
-        for w in windows:
+        for w in redefine_windows:
             if w.window_text() != "":
                 self.open_tabs.append(w.window_text())
         self.ap_selector = ttk.OptionMenu(
@@ -239,7 +240,10 @@ class QKIH(tk.Toplevel):
         ap = self.option_var.get()
         # inject script
         self.slept = False
-        for w in windows:
+
+        redefine_windows = Desktop(backend="uia").windows()
+
+        for w in redefine_windows:
             if w.window_text() == ap:
                 w.set_focus()
                 w.set_focus()
