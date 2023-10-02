@@ -234,13 +234,15 @@ class QKIH(tk.Toplevel):
             quit('saved last edit')
 
     def inject_script(self):
+        # max amount of times 'looped' loops
+        max_loop = 100
         # get script
         script = self.script_entry.get("1.0", "end-1c")
         # get access point
         ap = self.option_var.get()
         # inject script
         self.slept = False
-
+        
         redefine_windows = Desktop(backend="uia").windows()
 
         for w in redefine_windows:
@@ -251,85 +253,90 @@ class QKIH(tk.Toplevel):
                 keys_to_skip = 0
                 key_delay = random.randint(self.minms, self.maxms)/1000
                 print("key delay: "+str(self.minms)+"/"+str(self.maxms))
-                for key in script:
-                    if keys_to_skip > 0:
-                        keys_to_skip -= 1
+
+                x = max_loop if self.repeat_button.instate(['selected']) else 1
+                
+                for i in range(-1, x):
+                    print(f"loop: {i}")
+                    for key in script:
+                        if keys_to_skip > 0:
+                            keys_to_skip -= 1
+                            key_num += 1
+                            continue
+                        if self.slept == False:
+                            time.sleep(key_delay)
                         key_num += 1
-                        continue
-                    if self.slept == False:
-                        time.sleep(key_delay)
-                    key_num += 1
-                    print("|"+key+"| -- "+str(key_num))
-                    match key:
-                        case " ":
-                            kb.send_keys("{SPACE}")
-                        case "<":
-                            end_arrow_pos = script[key_num:].find(">")
-                            raw_function = script[key_num:end_arrow_pos+key_num+1]
-                            print("start: "+str(key_num)+" end: "+str(end_arrow_pos+key_num+1)+" raw: "+raw_function+" len: "+str(len(raw_function)))
-                            key_function = re.findall(
-                                r'\<[a-z-0-9_\s]*\>', raw_function)[0]
-                            keys_to_skip = len(key_function)-1
-                            sleep_time = 0
-                            repeat_time = 1
-                            stroke_input = None
-                            if "sleep" in key_function:
-                                sleep_time = float(re.findall(r'\d+', key_function)[0])
-                                key_function = "<sleep>"
-                            elif "click" in key_function:
-                                xpos = int(re.findall(r'\d+', key_function)[0])
-                                ypos = int(re.findall(r'\d+', key_function)[1])
-                                click_side = key_function[1]
-                                key_function = f"<{click_side}click>"
-                            elif re.findall(r'\d+', key_function):
-                                repeat_time = int(re.findall(r'\d+', key_function)[0])
-                                key_function = re.findall(r'\<.*\d+', key_function)[0]
-                                key_function = key_function[:-1]+">"
-                            elif "down" in key_function or "up" in key_function:
-                                manual = ['ctrl', 'shift', 'alt', 'win']
-                                driven = ['VK_CONTROL', 'VK_SHIFT', 'VK_MENU', 'VK_LWIN']
+                        print("|"+key+"| -- "+str(key_num))
+                        match key:
+                            case " ":
+                                kb.send_keys("{SPACE}")
+                            case "<":
+                                end_arrow_pos = script[key_num:].find(">")
+                                raw_function = script[key_num:end_arrow_pos+key_num+1]
+                                print("start: "+str(key_num)+" end: "+str(end_arrow_pos+key_num+1)+" raw: "+raw_function+" len: "+str(len(raw_function)))
+                                key_function = re.findall(
+                                    r'\<[a-z-0-9_\s]*\>', raw_function)[0]
+                                keys_to_skip = len(key_function)-1
+                                sleep_time = 0
+                                repeat_time = 1
+                                stroke_input = None
+                                if "sleep" in key_function:
+                                    sleep_time = float(re.findall(r'\d+', key_function)[0])
+                                    key_function = "<sleep>"
+                                elif "click" in key_function:
+                                    xpos = int(re.findall(r'\d+', key_function)[0])
+                                    ypos = int(re.findall(r'\d+', key_function)[1])
+                                    click_side = key_function[1]
+                                    key_function = f"<{click_side}click>"
+                                elif re.findall(r'\d+', key_function):
+                                    repeat_time = int(re.findall(r'\d+', key_function)[0])
+                                    key_function = re.findall(r'\<.*\d+', key_function)[0]
+                                    key_function = key_function[:-1]+">"
+                                elif "down" in key_function or "up" in key_function:
+                                    manual = ['ctrl', 'shift', 'alt', 'win']
+                                    driven = ['VK_CONTROL', 'VK_SHIFT', 'VK_MENU', 'VK_LWIN']
 
-                                for manual_key, driven_key in zip(manual, driven):
-                                    if manual_key in key_function:
-                                        key_function = key_function.replace(manual_key, driven_key)
+                                    for manual_key, driven_key in zip(manual, driven):
+                                        if manual_key in key_function:
+                                            key_function = key_function.replace(manual_key, driven_key)
 
-                                stroke_input = "{"+key_function.replace(
-                                    "<", "").replace(">", "").replace("_u", " u").replace("_d", " d")+"}"
-                                print("stroke_input:",
-                                    stroke_input, "key_function", key_function)
-                                kb.send_keys(stroke_input)
-                                
+                                    stroke_input = "{"+key_function.replace(
+                                        "<", "").replace(">", "").replace("_u", " u").replace("_d", " d")+"}"
+                                    print("stroke_input:",
+                                        stroke_input, "key_function", key_function)
+                                    kb.send_keys(stroke_input)
+                                    
 
-                            for k in range(repeat_time):
-                                print("|"+str(key_function).lower()+"|")
-                                match str(key_function).lower():
-                                    case "<enter>":
-                                        kb.send_keys("{ENTER}")
-                                    case "<tab>":
-                                        kb.send_keys("{TAB}")
-                                    case "<backspace>":
-                                        kb.send_keys("{BACKSPACE}")
-                                    case "<space>":
-                                        kb.send_keys("{SPACE}")
-                                    case "<sleep>":
-                                        time.sleep(sleep_time)
-                                    case "<win>":
-                                        kb.send_keys("{LWIN}")
-                                    case "<up>":
-                                        kb.send_keys("{UP}")
-                                    case "<down>":
-                                        kb.send_keys("{DOWN}")
-                                    case "<left>":
-                                        kb.send_keys("{LEFT}")
-                                    case "<right>":
-                                        kb.send_keys("{RIGHT}")
-                                if k < repeat_time-1:
-                                    time.sleep(key_delay)
-                                    self.slept = True
-                            if self.slept == True:
-                                self.slept = False
-                        case _:
-                            kb.send_keys(key)
+                                for k in range(repeat_time):
+                                    print("|"+str(key_function).lower()+"|")
+                                    match str(key_function).lower():
+                                        case "<enter>":
+                                            kb.send_keys("{ENTER}")
+                                        case "<tab>":
+                                            kb.send_keys("{TAB}")
+                                        case "<backspace>":
+                                            kb.send_keys("{BACKSPACE}")
+                                        case "<space>":
+                                            kb.send_keys("{SPACE}")
+                                        case "<sleep>":
+                                            time.sleep(sleep_time)
+                                        case "<win>":
+                                            kb.send_keys("{LWIN}")
+                                        case "<up>":
+                                            kb.send_keys("{UP}")
+                                        case "<down>":
+                                            kb.send_keys("{DOWN}")
+                                        case "<left>":
+                                            kb.send_keys("{LEFT}")
+                                        case "<right>":
+                                            kb.send_keys("{RIGHT}")
+                                    if k < repeat_time-1:
+                                        time.sleep(key_delay)
+                                        self.slept = True
+                                if self.slept == True:
+                                    self.slept = False
+                            case _:
+                                kb.send_keys(key)
 
 main = QKIH()
 
