@@ -265,11 +265,11 @@ class QKIH(tk.Toplevel):
                 key_delay = random.randint(self.minms, self.maxms)/1000
                 print("key delay: "+str(self.minms)+"/"+str(self.maxms))
 
-                x = max_loop if self.repeat_button.instate(['selected']) else 1                 
-                if x > 1:
+                x = max_loop if self.repeat_button.instate(['selected']) else 1
+                if x != 1:
                     self.notf("Notice - Loop Injection started", "Hold C anytime to quit injection.")
 
-                for i in range(-1, x):
+                for i in range(0, x):
                     print(f"loop: {i}")
                     key_num = -1
                     keys_to_skip = 0
@@ -310,8 +310,8 @@ class QKIH(tk.Toplevel):
                                     key_function = re.findall(r'\<.*\d+', key_function)[0]
                                     key_function = key_function[:-1]+">"
                                 elif "down" in key_function or "up" in key_function:
-                                    manual = ['ctrl', 'shift', 'alt', 'win']
-                                    driven = ['VK_CONTROL', 'VK_SHIFT', 'VK_MENU', 'VK_LWIN']
+                                    manual = ['ctrl', 'shift', 'alt', 'win', 'delete', 'menu', 'add', 'minus', 'divide', 'times']
+                                    driven = ['VK_CONTROL', 'VK_SHIFT', 'VK_MENU', 'VK_LWIN', 'DELETE', 'RMENU', 'VK_ADD', 'VK_SUBTRACT', 'VK_DIVIDE', "VK_MULTIPLY"]
 
                                     for manual_key, driven_key in zip(manual, driven):
                                         if manual_key in key_function:
@@ -323,7 +323,6 @@ class QKIH(tk.Toplevel):
                                         stroke_input, "key_function", key_function)
                                     kb.send_keys(stroke_input)
                                     
-
                                 for k in range(repeat_time):
                                     print("|"+str(key_function).lower()+"|")
                                     match str(key_function).lower():
@@ -377,8 +376,11 @@ class QKIH(tk.Toplevel):
                                             pass
                                         case "<pause>":
                                             kb.send_keys("{VK_PAUSE}")
+                                            pass
                                         case "<play>":
                                             kb.send_keys("{VK_PLAY}")
+                                            pass
+
                                     if k < repeat_time-1:
                                         time.sleep(key_delay)
                                         self.slept = True
