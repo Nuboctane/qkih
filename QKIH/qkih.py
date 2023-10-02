@@ -14,6 +14,11 @@ from pywinauto import Desktop
 from pywinauto import keyboard
 import re
 import time
+from notifypy import Notify
+import os
+
+name = str(os.path.basename(__file__))
+qkih = r'assets\\qkih.ico'
 
 kb = pw.keyboard
 
@@ -232,6 +237,14 @@ class QKIH(tk.Toplevel):
                 
             }, f, indent=4)
             quit('saved last edit')
+    
+    def notf(self, head, sub):
+        notification = Notify()
+        notification.title = head
+        notification.icon = qkih
+        notification.application_name = name
+        notification.message = sub
+        notification.send()   
 
     def inject_script(self):
         # max amount of times 'looped' loops
@@ -254,8 +267,10 @@ class QKIH(tk.Toplevel):
                 key_delay = random.randint(self.minms, self.maxms)/1000
                 print("key delay: "+str(self.minms)+"/"+str(self.maxms))
 
-                x = max_loop if self.repeat_button.instate(['selected']) else 1
-                
+                x = max_loop if self.repeat_button.instate(['selected']) else 1                 
+                if x > 1:
+                    self.notf("Notice - Loop Injection started", "Hold C anytime to quit injection.")
+
                 for i in range(-1, x):
                     print(f"loop: {i}")
                     for key in script:
@@ -337,6 +352,7 @@ class QKIH(tk.Toplevel):
                                     self.slept = False
                             case _:
                                 kb.send_keys(key)
+        self.notf("Notice - Injection Finished", "Injection script has reached it's end.")
 
 main = QKIH()
 
