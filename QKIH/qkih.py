@@ -262,8 +262,6 @@ class QKIH(tk.Toplevel):
             if w.window_text() == ap:
                 w.set_focus()
                 w.set_focus()
-                key_num = -1
-                keys_to_skip = 0
                 key_delay = random.randint(self.minms, self.maxms)/1000
                 print("key delay: "+str(self.minms)+"/"+str(self.maxms))
 
@@ -273,6 +271,8 @@ class QKIH(tk.Toplevel):
 
                 for i in range(-1, x):
                     print(f"loop: {i}")
+                    key_num = -1
+                    keys_to_skip = 0
                     for key in script:
                         if keys_to_skip > 0:
                             keys_to_skip -= 1
@@ -289,6 +289,7 @@ class QKIH(tk.Toplevel):
                                 end_arrow_pos = script[key_num:].find(">")
                                 raw_function = script[key_num:end_arrow_pos+key_num+1]
                                 print("start: "+str(key_num)+" end: "+str(end_arrow_pos+key_num+1)+" raw: "+raw_function+" len: "+str(len(raw_function)))
+                                
                                 key_function = re.findall(
                                     r'\<[a-z-0-9_\s]*\>', raw_function)[0]
                                 keys_to_skip = len(key_function)-1
@@ -328,26 +329,56 @@ class QKIH(tk.Toplevel):
                                     match str(key_function).lower():
                                         case "<enter>":
                                             kb.send_keys("{ENTER}")
+                                            pass
+                                        case "<delete>":
+                                            kb.send_keys("{DELETE}")
+                                            pass
                                         case "<tab>":
-                                            kb.send_keys("{TAB}")
+                                            kb.send_keys("{TAB}") 
+                                            pass
                                         case "<backspace>":
                                             kb.send_keys("{BACKSPACE}")
+                                            pass
                                         case "<space>":
                                             kb.send_keys("{SPACE}")
+                                            pass
                                         case "<sleep>":
                                             time.sleep(sleep_time)
+                                            pass
                                         case "<win>":
                                             kb.send_keys("{LWIN}")
+                                            pass
                                         case "<up>":
                                             kb.send_keys("{UP}")
+                                            pass
                                         case "<down>":
                                             kb.send_keys("{DOWN}")
+                                            pass
                                         case "<left>":
                                             kb.send_keys("{LEFT}")
+                                            pass
                                         case "<right>":
                                             kb.send_keys("{RIGHT}")
+                                            pass
                                         case "<menu>":
                                             kb.send_keys("{RMENU}")
+                                            pass
+                                        case "<plus>":
+                                            kb.send_keys("{VK_ADD}")
+                                            pass
+                                        case "<minus>":
+                                            kb.send_keys("{VK_SUBTRACT}")
+                                            pass
+                                        case "<times>":
+                                            kb.send_keys("{VK_MULTIPLY}")
+                                            pass
+                                        case "<divide>":
+                                            kb.send_keys("{VK_DIVIDE}")
+                                            pass
+                                        case "<pause>":
+                                            kb.send_keys("{VK_PAUSE}")
+                                        case "<play>":
+                                            kb.send_keys("{VK_PLAY}")
                                     if k < repeat_time-1:
                                         time.sleep(key_delay)
                                         self.slept = True
