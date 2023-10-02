@@ -301,6 +301,7 @@ class QKIH(tk.Toplevel):
                                 elif "click" in key_function:
                                     xpos = int(re.findall(r'\d+', key_function)[0])
                                     ypos = int(re.findall(r'\d+', key_function)[1])
+                                    # left or right click
                                     click_side = key_function[1]
                                     key_function = f"<{click_side}click>"
                                 elif re.findall(r'\d+', key_function):
@@ -345,6 +346,8 @@ class QKIH(tk.Toplevel):
                                             kb.send_keys("{LEFT}")
                                         case "<right>":
                                             kb.send_keys("{RIGHT}")
+                                        case "<menu>":
+                                            kb.send_keys("{RMENU}")
                                     if k < repeat_time-1:
                                         time.sleep(key_delay)
                                         self.slept = True
